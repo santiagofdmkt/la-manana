@@ -23,6 +23,25 @@ type Promocion = {
   activa: boolean
 }
 
+const pillStyle = (bg: string, color: string): React.CSSProperties => ({
+  display: 'inline-flex', alignItems: 'center', padding: '3px 10px',
+  borderRadius: '20px', fontSize: '0.72rem', fontWeight: 500, background: bg, color
+})
+
+const S: Record<string, React.CSSProperties> = {
+  wrap: { display: 'flex', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", background: '#F4F1EE' },
+  sidebar: { width: '240px', background: '#0F0608', display: 'flex', flexDirection: 'column', flexShrink: 0 },
+  logoWrap: { padding: '1.75rem 1.5rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' },
+  logoName: { fontFamily: 'Georgia, serif', fontSize: '1.25rem', color: '#E8C4B8', marginBottom: '2px' },
+  logoTag: { fontSize: '0.65rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' },
+  navWrap: { padding: '1rem 0.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' },
+  main: { flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 },
+  topbar: { background: '#fff', padding: '1rem 2rem', borderBottom: '1px solid #E5E0DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  content: { flex: 1, padding: '2rem', overflowY: 'auto' },
+  card: { background: '#fff', borderRadius: '12px', border: '1px solid #E5E0DB', padding: '1.5rem' },
+  metricCard: { background: '#fff', borderRadius: '12px', border: '1px solid #E5E0DB', padding: '1.25rem' },
+}
+
 export default function AdminPanel() {
   const [seccion, setSeccion] = useState('dashboard')
   const [reservas, setReservas] = useState<Reserva[]>([])
@@ -77,21 +96,6 @@ export default function AdminPanel() {
     { id: 'mensajes', label: 'Mensajes', emoji: '◉' },
   ]
 
-  const S: Record<string, React.CSSProperties> = {
-    wrap: { display: 'flex', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", background: '#F4F1EE' },
-    sidebar: { width: '240px', background: '#0F0608', display: 'flex', flexDirection: 'column', flexShrink: 0 },
-    logoWrap: { padding: '1.75rem 1.5rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' },
-    logoName: { fontFamily: 'Georgia, serif', fontSize: '1.25rem', color: '#E8C4B8', marginBottom: '2px' },
-    logoTag: { fontSize: '0.65rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' },
-    navWrap: { padding: '1rem 0.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' },
-    main: { flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 },
-    topbar: { background: '#fff', padding: '1rem 2rem', borderBottom: '1px solid #E5E0DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    content: { flex: 1, padding: '2rem', overflowY: 'auto' as const },
-    card: { background: '#fff', borderRadius: '12px', border: '1px solid #E5E0DB', padding: '1.5rem' },
-    metricCard: { background: '#fff', borderRadius: '12px', border: '1px solid #E5E0DB', padding: '1.25rem' },
-    pill: (color: string) => ({ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 500 }),
-  }
-
   function NavBtn({ item }: { item: typeof nav[0] }) {
     const active = seccion === item.id
     return (
@@ -100,14 +104,11 @@ export default function AdminPanel() {
         padding: '0.65rem 1rem', border: 'none', borderRadius: '8px', cursor: 'pointer',
         background: active ? 'rgba(196,80,106,0.18)' : 'transparent',
         color: active ? '#E8A0B0' : 'rgba(255,255,255,0.45)',
-        fontSize: '0.875rem', textAlign: 'left',
-        transition: 'all 0.15s'
+        fontSize: '0.875rem', textAlign: 'left', transition: 'all 0.15s'
       }}>
         <span style={{ fontSize: '1rem', width: '20px', textAlign: 'center' }}>{item.emoji}</span>
         <span style={{ flex: 1 }}>{item.label}</span>
-        {item.badge ? (
-          <span style={{ background: '#8B1A2E', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '10px' }}>{item.badge}</span>
-        ) : null}
+        {item.badge ? <span style={{ background: '#8B1A2E', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '10px' }}>{item.badge}</span> : null}
       </button>
     )
   }
@@ -119,23 +120,19 @@ export default function AdminPanel() {
       cancelada: { bg: '#FEE2E2', color: '#991B1B', label: 'Cancelada' },
     }
     const c = cfg[estado] || cfg.pendiente
-    return <span style={{ ...S.pill(''), background: c.bg, color: c.color }}>{c.label}</span>
+    return <span style={pillStyle(c.bg, c.color)}>{c.label}</span>
   }
 
   return (
     <div style={S.wrap}>
-
-      {/* SIDEBAR */}
       <div style={S.sidebar}>
         <div style={S.logoWrap}>
           <div style={S.logoName}>La Mañana</div>
           <div style={S.logoTag}>Panel de administración</div>
         </div>
-
         <div style={S.navWrap}>
           {nav.map(item => <NavBtn key={item.id} item={item} />)}
         </div>
-
         <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.5rem' }}>
             {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -144,10 +141,7 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* MAIN */}
       <div style={S.main}>
-
-        {/* TOPBAR */}
         <div style={S.topbar}>
           <div>
             <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1A0A0C' }}>
@@ -167,11 +161,9 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* CONTENIDO */}
         <div style={S.content}>
-          {loading && <div style={{ textAlign: 'center', color: '#999', padding: '4rem', fontSize: '0.9rem' }}>Cargando datos...</div>}
+          {loading && <div style={{ textAlign: 'center', color: '#999', padding: '4rem' }}>Cargando datos...</div>}
 
-          {/* DASHBOARD */}
           {!loading && seccion === 'dashboard' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem', marginBottom: '2rem' }}>
@@ -188,7 +180,6 @@ export default function AdminPanel() {
                   </div>
                 ))}
               </div>
-
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 <div style={S.card}>
                   <div style={{ fontWeight: 600, color: '#1A0A0C', marginBottom: '1rem', fontSize: '0.9rem' }}>Últimas reservas</div>
@@ -206,7 +197,6 @@ export default function AdminPanel() {
                   ))}
                   {reservas.length === 0 && <div style={{ color: '#999', fontSize: '0.85rem', textAlign: 'center', padding: '2rem 0' }}>Sin reservas aún</div>}
                 </div>
-
                 <div style={S.card}>
                   <div style={{ fontWeight: 600, color: '#1A0A0C', marginBottom: '1rem', fontSize: '0.9rem' }}>Promociones activas</div>
                   {promociones.filter(p => p.activa).map(p => (
@@ -219,7 +209,6 @@ export default function AdminPanel() {
                     </div>
                   ))}
                   {promosActivas === 0 && <div style={{ color: '#999', fontSize: '0.85rem', textAlign: 'center', padding: '2rem 0' }}>Sin promos activas</div>}
-
                   <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #F0EDE8' }}>
                     <div style={{ fontWeight: 600, color: '#1A0A0C', marginBottom: '0.75rem', fontSize: '0.85rem' }}>Accesos rápidos</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -241,7 +230,6 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* RESERVAS */}
           {!loading && seccion === 'reservas' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '2rem' }}>
@@ -256,11 +244,7 @@ export default function AdminPanel() {
                   </div>
                 ))}
               </div>
-
-              {reservas.length === 0 && (
-                <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay reservas aún</div>
-              )}
-
+              {reservas.length === 0 && <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay reservas aún</div>}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {reservas.map(r => (
                   <div key={r.id} style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.5rem' }}>
@@ -279,12 +263,8 @@ export default function AdminPanel() {
                       <EstadoPill estado={r.estado} />
                       {r.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => cambiarEstado(r.id, 'confirmada')} style={{ background: '#065F46', color: '#fff', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}>
-                            Confirmar
-                          </button>
-                          <button onClick={() => cambiarEstado(r.id, 'cancelada')} style={{ background: '#991B1B', color: '#fff', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}>
-                            Cancelar
-                          </button>
+                          <button onClick={() => cambiarEstado(r.id, 'confirmada')} style={{ background: '#065F46', color: '#fff', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}>Confirmar</button>
+                          <button onClick={() => cambiarEstado(r.id, 'cancelada')} style={{ background: '#991B1B', color: '#fff', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}>Cancelar</button>
                         </>
                       )}
                     </div>
@@ -294,7 +274,6 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* PROMOCIONES */}
           {!loading && seccion === 'promociones' && (
             <div>
               <div style={{ ...S.card, marginBottom: '1.5rem' }}>
@@ -313,17 +292,11 @@ export default function AdminPanel() {
                     <input name="descripcion" placeholder="Descripción de la promo" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9' }} />
                   </div>
                   <div>
-                    <button type="submit" style={{ background: '#8B1A2E', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>
-                      + Agregar promoción
-                    </button>
+                    <button type="submit" style={{ background: '#8B1A2E', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>+ Agregar promoción</button>
                   </div>
                 </form>
               </div>
-
-              {promociones.length === 0 && (
-                <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay promociones aún</div>
-              )}
-
+              {promociones.length === 0 && <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay promociones aún</div>}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {promociones.map(p => (
                   <div key={p.id} style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.5rem' }}>
@@ -334,8 +307,8 @@ export default function AdminPanel() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span style={{ fontSize: '0.78rem', color: p.activa ? '#065F46' : '#999', fontWeight: 500 }}>{p.activa ? 'Activa' : 'Inactiva'}</span>
-                      <div onClick={() => togglePromo(p.id, p.activa)} style={{ width: '44px', height: '24px', borderRadius: '12px', background: p.activa ? '#8B1A2E' : '#D1D5DB', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-                        <div style={{ position: 'absolute', top: '4px', left: p.activa ? '22px' : '4px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
+                      <div onClick={() => togglePromo(p.id, p.activa)} style={{ width: '44px', height: '24px', borderRadius: '12px', background: p.activa ? '#8B1A2E' : '#D1D5DB', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
+                        <div style={{ position: 'absolute', top: '4px', left: p.activa ? '22px' : '4px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff' }} />
                       </div>
                     </div>
                   </div>
@@ -344,7 +317,6 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* MENSAJES */}
           {!loading && seccion === 'mensajes' && (
             <div style={{ ...S.card, textAlign: 'center', padding: '4rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
@@ -352,7 +324,6 @@ export default function AdminPanel() {
               <div style={{ fontSize: '0.85rem', color: '#999' }}>Aparecerán aquí cuando alguien envíe el formulario del sitio</div>
             </div>
           )}
-
         </div>
       </div>
     </div>
