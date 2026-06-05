@@ -170,9 +170,7 @@ export default function AdminPanel() {
           }
           .lm-sidebar-mobile {
             position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
+            top: 0; left: 0; bottom: 0;
             width: 260px;
             background: #0F0608;
             z-index: 201;
@@ -181,12 +179,11 @@ export default function AdminPanel() {
             transform: translateX(-100%);
             transition: transform 0.25s ease;
           }
-          .lm-sidebar-mobile.open {
-            transform: translateX(0);
-          }
+          .lm-sidebar-mobile.open { transform: translateX(0); }
 
-          .lm-topbar { padding: 0.8rem 1rem !important; }
+          .lm-topbar { padding: 0.75rem 1rem !important; }
           .lm-content { padding: 1rem !important; }
+          .lm-topbar-sub { display: none; }
 
           .lm-metrics-4 { grid-template-columns: 1fr 1fr !important; }
           .lm-metrics-3 { grid-template-columns: 1fr 1fr !important; }
@@ -218,31 +215,31 @@ export default function AdminPanel() {
 
         {/* Topbar */}
         <div className="lm-topbar" style={S.topbar}>
-          {/* Hamburger — solo mobile */}
-          <button
-            className="lm-topbar-hamburger"
-            onClick={() => setSidebarAbierto(!sidebarAbierto)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}
-          >
-            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
-            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
-            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
-          </button>
-
-          <div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1A0A0C' }}>
-              {nav.find(n => n.id === seccion)?.label || 'Dashboard'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button
+              className="lm-topbar-hamburger"
+              onClick={() => setSidebarAbierto(!sidebarAbierto)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}
+            >
+              <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+              <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+              <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+            </button>
+            <div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1A0A0C' }}>
+                {nav.find(n => n.id === seccion)?.label || 'Dashboard'}
+              </div>
+              <div className="lm-topbar-sub" style={{ fontSize: '0.78rem', color: '#999', marginTop: '1px' }}>La Mañana · Café & Brunch</div>
             </div>
-            <div style={{ fontSize: '0.78rem', color: '#999', marginTop: '1px' }}>La Mañana · Café & Brunch</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {pendientes > 0 && (
-              <span style={{ background: '#FEE2E2', color: '#991B1B', fontSize: '0.75rem', padding: '0.3rem 0.85rem', borderRadius: '20px', fontWeight: 500 }}>
-                {pendientes} pendiente{pendientes > 1 ? 's' : ''}
+              <span style={{ background: '#FEE2E2', color: '#991B1B', fontSize: '0.75rem', padding: '0.3rem 0.75rem', borderRadius: '20px', fontWeight: 500 }}>
+                {pendientes}
               </span>
             )}
-            <button onClick={cargarDatos} style={{ background: '#F4F1EE', border: '1px solid #E5E0DB', padding: '0.45rem 1.1rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#666', fontWeight: 500 }}>
-              ↻ Actualizar
+            <button onClick={cargarDatos} style={{ background: '#F4F1EE', border: '1px solid #E5E0DB', padding: '0.45rem 0.75rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#666', fontWeight: 500 }}>
+              ↻
             </button>
           </div>
         </div>
