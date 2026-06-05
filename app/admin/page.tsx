@@ -47,6 +47,7 @@ export default function AdminPanel() {
   const [reservas, setReservas] = useState<Reserva[]>([])
   const [promociones, setPromociones] = useState<Promocion[]>([])
   const [loading, setLoading] = useState(true)
+  const [sidebarAbierto, setSidebarAbierto] = useState(false)
 
   useEffect(() => { cargarDatos() }, [])
 
@@ -99,7 +100,7 @@ export default function AdminPanel() {
   function NavBtn({ item }: { item: typeof nav[0] }) {
     const active = seccion === item.id
     return (
-      <button onClick={() => setSeccion(item.id)} style={{
+      <button onClick={() => { setSeccion(item.id); setSidebarAbierto(false) }} style={{
         display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
         padding: '0.65rem 1rem', border: 'none', borderRadius: '8px', cursor: 'pointer',
         background: active ? 'rgba(196,80,106,0.18)' : 'transparent',
@@ -123,26 +124,111 @@ export default function AdminPanel() {
     return <span style={pillStyle(c.bg, c.color)}>{c.label}</span>
   }
 
+  const SidebarContent = () => (
+    <>
+      <div style={S.logoWrap}>
+        <div style={S.logoName}>La Mañana</div>
+        <div style={S.logoTag}>Panel de administración</div>
+      </div>
+      <div style={S.navWrap}>
+        {nav.map(item => <NavBtn key={item.id} item={item} />)}
+      </div>
+      <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.5rem' }}>
+          {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </div>
+        <a href="/" style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>← Ver sitio</a>
+      </div>
+    </>
+  )
+
   return (
     <div style={S.wrap}>
-      <div style={S.sidebar}>
-        <div style={S.logoWrap}>
-          <div style={S.logoName}>La Mañana</div>
-          <div style={S.logoTag}>Panel de administración</div>
-        </div>
-        <div style={S.navWrap}>
-          {nav.map(item => <NavBtn key={item.id} item={item} />)}
-        </div>
-        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.5rem' }}>
-            {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </div>
-          <a href="/" style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>← Ver sitio</a>
-        </div>
+      <style>{`
+        .lm-sidebar-desktop { display: flex !important; }
+        .lm-topbar-hamburger { display: none !important; }
+        .lm-sidebar-overlay { display: none; }
+
+        .lm-metrics-4 { grid-template-columns: repeat(4, 1fr) !important; }
+        .lm-metrics-3 { grid-template-columns: repeat(3, 1fr) !important; }
+        .lm-dashboard-grid { grid-template-columns: 1fr 1fr !important; }
+        .lm-promo-form-grid { grid-template-columns: 1fr 1fr !important; }
+
+        .lm-reserva-row { flex-direction: row !important; align-items: center !important; }
+        .lm-reserva-actions { flex-direction: row !important; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+          .lm-sidebar-desktop { display: none !important; }
+          .lm-topbar-hamburger { display: flex !important; }
+
+          .lm-sidebar-overlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+          }
+          .lm-sidebar-mobile {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            background: #0F0608;
+            z-index: 201;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+          }
+          .lm-sidebar-mobile.open {
+            transform: translateX(0);
+          }
+
+          .lm-topbar { padding: 0.8rem 1rem !important; }
+          .lm-content { padding: 1rem !important; }
+
+          .lm-metrics-4 { grid-template-columns: 1fr 1fr !important; }
+          .lm-metrics-3 { grid-template-columns: 1fr 1fr !important; }
+          .lm-dashboard-grid { grid-template-columns: 1fr !important; }
+          .lm-promo-form-grid { grid-template-columns: 1fr !important; }
+
+          .lm-reserva-row { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
+          .lm-reserva-actions { flex-direction: row !important; flex-wrap: wrap; width: 100%; }
+        }
+      `}</style>
+
+      {/* Sidebar desktop */}
+      <div className="lm-sidebar-desktop" style={{ ...S.sidebar, flexDirection: 'column' }}>
+        <SidebarContent />
       </div>
 
+      {/* Sidebar mobile overlay */}
+      {sidebarAbierto && (
+        <div className="lm-sidebar-overlay" onClick={() => setSidebarAbierto(false)} />
+      )}
+
+      {/* Sidebar mobile drawer */}
+      <div className={`lm-sidebar-mobile${sidebarAbierto ? ' open' : ''}`}>
+        <SidebarContent />
+      </div>
+
+      {/* Main */}
       <div style={S.main}>
-        <div style={S.topbar}>
+
+        {/* Topbar */}
+        <div className="lm-topbar" style={S.topbar}>
+          {/* Hamburger — solo mobile */}
+          <button
+            className="lm-topbar-hamburger"
+            onClick={() => setSidebarAbierto(!sidebarAbierto)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}
+          >
+            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+            <span style={{ display: 'block', width: '22px', height: '2px', background: '#333' }} />
+          </button>
+
           <div>
             <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1A0A0C' }}>
               {nav.find(n => n.id === seccion)?.label || 'Dashboard'}
@@ -161,12 +247,13 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        <div style={S.content}>
+        {/* Content */}
+        <div className="lm-content" style={S.content}>
           {loading && <div style={{ textAlign: 'center', color: '#999', padding: '4rem' }}>Cargando datos...</div>}
 
           {!loading && seccion === 'dashboard' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem', marginBottom: '2rem' }}>
+              <div className="lm-metrics-4" style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
                 {[
                   { label: 'Reservas hoy', val: reservasHoy, sub: 'del día', accent: '#8B1A2E' },
                   { label: 'Pendientes', val: pendientes, sub: 'sin confirmar', accent: '#92400E' },
@@ -180,7 +267,7 @@ export default function AdminPanel() {
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="lm-dashboard-grid" style={{ display: 'grid', gap: '1.5rem' }}>
                 <div style={S.card}>
                   <div style={{ fontWeight: 600, color: '#1A0A0C', marginBottom: '1rem', fontSize: '0.9rem' }}>Últimas reservas</div>
                   {reservas.slice(0, 5).map(r => (
@@ -232,7 +319,7 @@ export default function AdminPanel() {
 
           {!loading && seccion === 'reservas' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '2rem' }}>
+              <div className="lm-metrics-3" style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
                 {[
                   { label: 'Total', val: reservas.length, color: '#1A0A0C' },
                   { label: 'Pendientes', val: pendientes, color: '#92400E' },
@@ -247,7 +334,7 @@ export default function AdminPanel() {
               {reservas.length === 0 && <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay reservas aún</div>}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {reservas.map(r => (
-                  <div key={r.id} style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.5rem' }}>
+                  <div key={r.id} className="lm-reserva-row" style={{ ...S.card, display: 'flex', gap: '1rem', padding: '1.1rem 1.5rem' }}>
                     <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#8B1A2E', fontSize: '1rem', flexShrink: 0 }}>
                       {r.nombre.charAt(0).toUpperCase()}
                     </div>
@@ -259,7 +346,7 @@ export default function AdminPanel() {
                       </div>
                       {r.comentario && <div style={{ fontSize: '0.76rem', color: '#bbb', marginTop: '3px', fontStyle: 'italic' }}>"{r.comentario}"</div>}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    <div className="lm-reserva-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                       <EstadoPill estado={r.estado} />
                       {r.estado === 'pendiente' && (
                         <>
@@ -278,22 +365,22 @@ export default function AdminPanel() {
             <div>
               <div style={{ ...S.card, marginBottom: '1.5rem' }}>
                 <div style={{ fontWeight: 600, color: '#1A0A0C', marginBottom: '1.25rem' }}>Nueva promoción</div>
-                <form onSubmit={agregarPromo} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Título</label>
-                    <input name="titulo" required placeholder="Brunch para dos" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9' }} />
+                <form onSubmit={agregarPromo}>
+                  <div className="lm-promo-form-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Título</label>
+                      <input name="titulo" required placeholder="Brunch para dos" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9', boxSizing: 'border-box' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Precio</label>
+                      <input name="precio" placeholder="$9.900" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9', boxSizing: 'border-box' }} />
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Precio</label>
-                    <input name="precio" placeholder="$9.900" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9' }} />
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
+                  <div style={{ marginBottom: '1rem' }}>
                     <label style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Descripción</label>
-                    <input name="descripcion" placeholder="Descripción de la promo" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9' }} />
+                    <input name="descripcion" placeholder="Descripción de la promo" style={{ width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #E5E0DB', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', background: '#FAFAF9', boxSizing: 'border-box' }} />
                   </div>
-                  <div>
-                    <button type="submit" style={{ background: '#8B1A2E', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>+ Agregar promoción</button>
-                  </div>
+                  <button type="submit" style={{ background: '#8B1A2E', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>+ Agregar promoción</button>
                 </form>
               </div>
               {promociones.length === 0 && <div style={{ ...S.card, textAlign: 'center', color: '#999', padding: '3rem' }}>No hay promociones aún</div>}
@@ -301,11 +388,11 @@ export default function AdminPanel() {
                 {promociones.map(p => (
                   <div key={p.id} style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.5rem' }}>
                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: p.activa ? '#8B1A2E' : '#D1D5DB', flexShrink: 0 }} />
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, color: '#1A0A0C' }}>{p.titulo}</div>
                       <div style={{ fontSize: '0.8rem', color: '#888' }}>{p.descripcion}{p.precio ? ` · ${p.precio}` : ''}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
                       <span style={{ fontSize: '0.78rem', color: p.activa ? '#065F46' : '#999', fontWeight: 500 }}>{p.activa ? 'Activa' : 'Inactiva'}</span>
                       <div onClick={() => togglePromo(p.id, p.activa)} style={{ width: '44px', height: '24px', borderRadius: '12px', background: p.activa ? '#8B1A2E' : '#D1D5DB', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
                         <div style={{ position: 'absolute', top: '4px', left: p.activa ? '22px' : '4px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff' }} />
